@@ -4,8 +4,11 @@ import time
 import datetime
 import pandas as pd
 import smtplib
+import datetime
+import csv 
 
 def check_stat():
+    
     URL = ("https://www.tankathon.com/mock_draft")
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36", "Accept-Encoding":"gzip, deflate", "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
 
@@ -15,27 +18,42 @@ def check_stat():
 
     soup2 = BeautifulSoup(soup1.prettify(), "html.parser")
 
-    for playername in soup2.find_all("div",{'class':"mock-row-name"}) : print(playername.get_text())
-    for playermeasure in soup2.find_all("div",{'class':"section height-weight"}) : print(playermeasure.get_text())
-    for playerstats in soup2.find_all("div",{'class':"stat pts"}) : print(playerstats.get_text())
-               
-             
-           
-
-    import datetime
-
-    today = datetime.date.today()
+    playernames = soup2.find_all("div",{'class':"mock-row-name"}) 
+    playerpositions = soup2.find_all("div",{'class':"mock-row-school-position"})
+    playermeasures = soup2.find_all("div",{'class':"section height-weight"}) 
+    playeryears = soup2.find_all("div",{'class':"section year-age desktop"}) 
+    #playerspgs = soup2.find_all("div",{'class':"stats-per-game" "stat pts"}) 
+    playerpts = soup2.find_all("div",{'class':"stat pts"}) 
+    playerrebs = soup2.find_all("div",{'class':"stat reb"})
+    playerasts = soup2.find_all("div",{'class':"stat ast"})
+    playerblks = soup2.find_all("div",{'class':"stat blk desktop"})
+    playerstls = soup2.find_all("div",{'class':"stat stl desktop"})
+    rows = []   
+    today = datetime.date.today() 
     
-    import csv 
-
-    header = ['PlayerName', 'PlayerMeasure', 'PlayerPoints', 'Date']
-    data = [playername, playermeasure, playerstats, today]
-
-
-#appending data to the csv
-
-    with open('TankathonScraperDataset.csv', 'a+', newline='', encoding='UTF8') as f:
-        writer = csv.writer(f)
-        writer.writerow(data)
+    for i in range(len(playernames)):
+        playername = playernames[i].get_text().strip()
+        playerpositionss = playerpositions[i].get_text().strip().split("|")
+        playerposition = playerpositionss[0]
+        playerschool = playerpositionss[-1:]
+        playermeasure = playermeasures[i].get_text().strip()
+        playeryearss =  playeryears[i].get_text().strip().split(" ")
+        playeryear = playeryearss[0:1]
+        playerage = playeryearss[-2:-1]
+        #playerspg = playerspgs[i].get_text().strip()
+        playerpt = playerpts[i].get_text().strip()
+        playerreb = playerrebs[i].get_text().strip()
+        playerast = playerasts[i].get_text().strip()
+        playerblk = playerblks[i].get_text().strip()
+        playerstl = playerstls[i].get_text().strip()
+        data = [playername, playerposition,playerschool, playermeasure,playeryear,playerage, playerpt,playerreb,playerast,playerblk,playerstl, today]
+        rows.append(data)
         
- check_stat() 
+    with open('TankathonDataset.csv', 'a+', newline='', encoding='UTF8') as f:
+        writer = csv.writer(f)        
+        header = ['PlayerName', 'PlayerPosition','PlayerSchool', 'PlayerMeasure', 'PlayerYear','PlayerAge','PlayerPoints', 'PlayerRebounds','PlayerAssists','PlayerBlocks','PlayerSteals','Date']
+        writer.writerow(header)
+        for row in rows:
+            writer.writerow(row)
+
+check_stat()

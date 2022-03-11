@@ -1,3 +1,5 @@
+#Creating webscraper that gets top draft picks stats from tankathon.com and puts into an excel file in order to use for analysis later.
+
 from bs4 import BeautifulSoup
 import requests
 import time
@@ -40,20 +42,28 @@ def check_stat():
         playeryearss =  playeryears[i].get_text().strip().split(" ")
         playeryear = playeryearss[0:1]
         playerage = playeryearss[-2:-1]
-        #playerspg = playerspgs[i].get_text().strip()
         playerpt = playerpts[i].get_text().strip()
         playerreb = playerrebs[i].get_text().strip()
         playerast = playerasts[i].get_text().strip()
         playerblk = playerblks[i].get_text().strip()
         playerstl = playerstls[i].get_text().strip()
+        #Getting Variables to look proper in excel file
+        playerschool = str(playerschool)
+        playerschool = playerschool.replace("['","")
+        playerschool = playerschool.replace("']","")
+        playeryear = str(playeryear)
+        playeryear = playeryear.replace("['","")
+        playeryear = playeryear.replace("']","")
+        playerage = str(playerage)
+        playerage = playerage.replace("['","")
+        playerage = playerage.replace("']","")
         data = [playername, playerposition,playerschool, playermeasure,playeryear,playerage, playerpt,playerreb,playerast,playerblk,playerstl, today]
         rows.append(data)
         
-    with open('TankathonDataset.csv', 'a+', newline='', encoding='UTF8') as f:
+    with open('TankathonDatasetFinal.csv', 'a+', newline='', encoding='UTF8') as f:
         writer = csv.writer(f)        
         header = ['PlayerName', 'PlayerPosition','PlayerSchool', 'PlayerMeasure', 'PlayerYear','PlayerAge','PlayerPoints', 'PlayerRebounds','PlayerAssists','PlayerBlocks','PlayerSteals','Date']
         writer.writerow(header)
         for row in rows:
             writer.writerow(row)
-
 check_stat()
